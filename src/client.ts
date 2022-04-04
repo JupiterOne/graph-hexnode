@@ -11,6 +11,7 @@ import {
   HexnodeUser,
   HexnodeGroup,
   HexnodeGroupDetail,
+  HexnodeDevice,
 } from './types';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
@@ -106,6 +107,21 @@ export class APIClient {
   ): Promise<void> {
     await this.paginatedRequest<HexnodeGroup>(
       this.withBaseUri(`usergroups/?per_page=${this.perPage}`),
+      'GET',
+      iteratee,
+    );
+  }
+
+  /**
+   * Iterates each user resource in the provider.
+   *
+   * @param iteratee receives each resource to produce entities/relationships
+   */
+  public async iterateDevices(
+    iteratee: ResourceIteratee<HexnodeDevice>,
+  ): Promise<void> {
+    await this.paginatedRequest<HexnodeDevice>(
+      this.withBaseUri(`devices/?per_page=${this.perPage}`),
       'GET',
       iteratee,
     );

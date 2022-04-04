@@ -99,6 +99,7 @@ The following entities are created:
 | Resources | Entity `_type`       | Entity `_class` |
 | --------- | -------------------- | --------------- |
 | Account   | `hexnode_account`    | `Account`       |
+| Device    | `hexnode_device`     | `Device`        |
 | Group     | `hexnode_user_group` | `Group`         |
 | User      | `hexnode_user`       | `User`          |
 
@@ -110,6 +111,7 @@ The following relationships are created:
 | --------------------- | --------------------- | --------------------- |
 | `hexnode_account`     | **HAS**               | `hexnode_user`        |
 | `hexnode_user_group`  | **HAS**               | `hexnode_user`        |
+| `hexnode_user`        | **HAS**               | `hexnode_device`      |
 
 <!--
 ********************************************************************************

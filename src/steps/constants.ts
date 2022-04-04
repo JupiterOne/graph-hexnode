@@ -8,10 +8,11 @@ export const Steps = {
   ACCOUNT: 'fetch-account',
   USERS: 'fetch-users',
   GROUPS: 'fetch-groups',
+  DEVICES: 'fetch-devices',
 };
 
 export const Entities: Record<
-  'USER' | 'ACCOUNT' | 'GROUP',
+  'USER' | 'ACCOUNT' | 'GROUP' | 'DEVICE',
   StepEntityMetadata
 > = {
   ACCOUNT: {
@@ -29,10 +30,15 @@ export const Entities: Record<
     _type: 'hexnode_user_group',
     _class: ['Group'],
   },
+  DEVICE: {
+    resourceName: 'Device',
+    _type: 'hexnode_device',
+    _class: ['Device'],
+  },
 };
 
 export const Relationships: Record<
-  'ACCOUNT_HAS_USER' | 'GROUP_HAS_USER',
+  'ACCOUNT_HAS_USER' | 'GROUP_HAS_USER' | 'USER_HAS_DEVICE',
   StepRelationshipMetadata
 > = {
   ACCOUNT_HAS_USER: {
@@ -46,5 +52,11 @@ export const Relationships: Record<
     sourceType: Entities.GROUP._type,
     _class: RelationshipClass.HAS,
     targetType: Entities.USER._type,
+  },
+  USER_HAS_DEVICE: {
+    _type: 'hexnode_user_has_device',
+    sourceType: Entities.USER._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.DEVICE._type,
   },
 };

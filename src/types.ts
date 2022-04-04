@@ -21,6 +21,24 @@ export type HexnodeGroup = {
   modified_date: string;
 };
 
+export type HexnodeDevice = {
+  id: number;
+  device_name: string;
+  model_name: string;
+  os_name: string;
+  os_version: string;
+  enrolled_time: string;
+  last_reported: string;
+  compliant: boolean;
+  serial_number: string;
+  enrollment_status: string;
+  udid: string;
+  user: {
+    id: number;
+    name: string;
+  };
+};
+
 export type HexnodeUserResponse = HexnodeResponseMeta & {
   results: HexnodeUser[];
 };
