@@ -10,12 +10,14 @@ if (process.env.LOAD_ENV) {
     path: path.join(__dirname, '../.env'),
   });
 }
-const DEFAULT_CLIENT_ID = 'dummy-acme-client-id';
-const DEFAULT_CLIENT_SECRET = 'dummy-acme-client-secret';
+const DEFAULT_API_KEY = '12345zrppMYnzhY12345';
+const DEFAULT_HOSTNAME = 'sample.hexnode.com';
+const DEFAULT_EMAIL = 'sample@email.com';
 
 export const integrationConfig: IntegrationConfig = {
-  clientId: process.env.CLIENT_ID || DEFAULT_CLIENT_ID,
-  clientSecret: process.env.CLIENT_SECRET || DEFAULT_CLIENT_SECRET,
+  apiKey: process.env.API_KEY || DEFAULT_API_KEY,
+  hostname: process.env.HOSTNAME || DEFAULT_HOSTNAME,
+  email: process.env.EMAIL || DEFAULT_EMAIL,
 };
 
 export function buildStepTestConfigForStep(stepId: string): StepTestConfig {
