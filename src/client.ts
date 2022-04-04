@@ -10,7 +10,6 @@ import {
   HexnodeUserResponse,
   HexnodeUser,
   HexnodeGroup,
-  HexnodeGroupResponse,
   HexnodeGroupDetail,
 } from './types';
 
@@ -18,13 +17,14 @@ export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
 
 export class APIClient {
   constructor(readonly config: IntegrationConfig) {}
+  private perPage = 100;
   private baseUri = `https://${this.config.hostname}/api/v1/`;
-  private withBaseUri = (path: string) => `${this.baseUri}${path}/`;
+  private withBaseUri = (path: string) => `${this.baseUri}${path}`;
 
   private async request<T>(
     uri: string,
     method: 'GET' | 'HEAD' = 'GET',
-  ): Promise<T> {
+  ): Promise<any> {
     try {
       const options = {
         method,
@@ -44,13 +44,37 @@ export class APIClient {
     }
   }
 
-  public async verifyAuthentication(): Promise<void> {
+  private async paginatedRequest<T>(
+    uri: string,
+    method: 'GET' | 'HEAD' = 'GET',
+    iteratee: ResourceIteratee<T>,
+  ): Promise<void> {
     try {
-      await this.request<HexnodeUserResponse>(this.withBaseUri('users'));
+      let next = null;
+      do {
+        const response = await this.request<T>(next || uri, method);
+
+        for (const result of response.results) await iteratee(result);
+        next = response.next;
+      } while (next);
+    } catch (err) {
+      throw new IntegrationProviderAPIError({
+        cause: new Error(err.message),
+        endpoint: uri,
+        status: err.statusCode,
+        statusText: err.message,
+      });
+    }
+  }
+
+  public async verifyAuthentication(): Promise<void> {
+    const uri = this.withBaseUri('users/');
+    try {
+      await this.request<HexnodeUserResponse>(uri);
     } catch (err) {
       throw new IntegrationProviderAuthenticationError({
         cause: err,
-        endpoint: this.withBaseUri('users'),
+        endpoint: uri,
         status: err.status,
         statusText: err.statusText,
       });
@@ -65,13 +89,11 @@ export class APIClient {
   public async iterateUsers(
     iteratee: ResourceIteratee<HexnodeUser>,
   ): Promise<void> {
-    const response = await this.request<HexnodeUserResponse>(
-      this.withBaseUri('users'),
+    await this.paginatedRequest<HexnodeUser>(
+      this.withBaseUri(`users/?per_page=${this.perPage}`),
+      'GET',
+      iteratee,
     );
-
-    for (const user of response.results) {
-      await iteratee(user);
-    }
   }
 
   /**
@@ -82,18 +104,16 @@ export class APIClient {
   public async iterateGroups(
     iteratee: ResourceIteratee<HexnodeGroup>,
   ): Promise<void> {
-    const response = await this.request<HexnodeGroupResponse>(
-      this.withBaseUri('usergroups'),
+    await this.paginatedRequest<HexnodeGroup>(
+      this.withBaseUri(`usergroups/?per_page=${this.perPage}`),
+      'GET',
+      iteratee,
     );
-
-    for (const group of response.results) {
-      await iteratee(group);
-    }
   }
 
-  public async fetchGroup(id: string): Promise<HexnodeGroupDetail> {
+  public async fetchUserGroupDetails(id: string): Promise<HexnodeGroupDetail> {
     return await this.request<HexnodeGroupDetail>(
-      this.withBaseUri(`usergroups/${id}`),
+      this.withBaseUri(`usergroups/${id}/`),
     );
   }
 }

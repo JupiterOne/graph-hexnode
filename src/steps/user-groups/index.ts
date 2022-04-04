@@ -21,7 +21,9 @@ export async function fetchGroups({
     if (groupEntity) {
       await jobState.addEntity(groupEntity);
 
-      const groupDetail = await apiClient.fetchGroup(groupEntity.id as string);
+      const groupDetail = await apiClient.fetchUserGroupDetails(
+        groupEntity.id as string,
+      );
 
       for (const user of groupDetail.users) {
         const userEntity = await jobState.findEntity(
