@@ -6,7 +6,13 @@ import {
 } from '@jupiterone/integration-sdk-core';
 
 import { IntegrationConfig } from './config';
-import { HexnodeUserResponse, HexnodeUser } from './types';
+import {
+  HexnodeUserResponse,
+  HexnodeUser,
+  HexnodeGroup,
+  HexnodeGroupResponse,
+  HexnodeGroupDetail,
+} from './types';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
 
@@ -18,8 +24,6 @@ export class APIClient {
   private async request<T>(
     uri: string,
     method: 'GET' | 'HEAD' = 'GET',
-    retries: number = 1,
-    backoffTime: number = 5,
   ): Promise<T> {
     try {
       const options = {
@@ -61,13 +65,36 @@ export class APIClient {
   public async iterateUsers(
     iteratee: ResourceIteratee<HexnodeUser>,
   ): Promise<void> {
-    const { results } = await this.request<HexnodeUserResponse>(
+    const response = await this.request<HexnodeUserResponse>(
       this.withBaseUri('users'),
     );
 
-    for (const user of results) {
+    for (const user of response.results) {
       await iteratee(user);
     }
+  }
+
+  /**
+   * Iterates each user resource in the provider.
+   *
+   * @param iteratee receives each resource to produce entities/relationships
+   */
+  public async iterateGroups(
+    iteratee: ResourceIteratee<HexnodeGroup>,
+  ): Promise<void> {
+    const response = await this.request<HexnodeGroupResponse>(
+      this.withBaseUri('usergroups'),
+    );
+
+    for (const group of response.results) {
+      await iteratee(group);
+    }
+  }
+
+  public async fetchGroup(id: string): Promise<HexnodeGroupDetail> {
+    return await this.request<HexnodeGroupDetail>(
+      this.withBaseUri(`usergroups/${id}`),
+    );
   }
 }
 

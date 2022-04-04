@@ -96,10 +96,11 @@ https://github.com/JupiterOne/sdk/blob/main/docs/integrations/development.md
 
 The following entities are created:
 
-| Resources | Entity `_type`    | Entity `_class` |
-| --------- | ----------------- | --------------- |
-| Account   | `hexnode_account` | `Account`       |
-| User      | `hexnode_user`    | `User`          |
+| Resources | Entity `_type`       | Entity `_class` |
+| --------- | -------------------- | --------------- |
+| Account   | `hexnode_account`    | `Account`       |
+| Group     | `hexnode_user_group` | `Group`         |
+| User      | `hexnode_user`       | `User`          |
 
 ### Relationships
 
@@ -108,6 +109,7 @@ The following relationships are created:
 | Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
 | --------------------- | --------------------- | --------------------- |
 | `hexnode_account`     | **HAS**               | `hexnode_user`        |
+| `hexnode_user_group`  | **HAS**               | `hexnode_user`        |
 
 <!--
 ********************************************************************************
