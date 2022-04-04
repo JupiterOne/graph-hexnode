@@ -21,7 +21,7 @@ describe('#validateInvocation', () => {
     });
 
     await expect(validateInvocation(executionContext)).rejects.toThrow(
-      'Config requires all of { apiKey, hostname }',
+      'Config requires all of { apiKey, hostname, email }',
     );
   });
 
