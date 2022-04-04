@@ -5,8 +5,8 @@ import {
 
 import { Entities } from '../constants';
 
-export function getAccountKey(user: string): string {
-  return `hexnode_account:${user}`;
+export function getAccountKey(email: string): string {
+  return `hexnode_account:${email}`;
 }
 
 export function createAccountEntity(account: {

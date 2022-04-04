@@ -101,6 +101,14 @@ The following entities are created:
 | Account   | `hexnode_account` | `Account`       |
 | User      | `hexnode_user`    | `User`          |
 
+### Relationships
+
+The following relationships are created:
+
+| Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
+| --------------------- | --------------------- | --------------------- |
+| `hexnode_account`     | **HAS**               | `hexnode_user`        |
+
 <!--
 ********************************************************************************
 END OF GENERATED DOCUMENTATION AFTER BELOW MARKER
