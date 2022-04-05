@@ -17,10 +17,30 @@ export async function fetchDeviceGroups({
   const apiClient = createAPIClient(instance.config);
 
   await apiClient.iterateDeviceGroups(async (deviceGroup) => {
-    const deviceEntity = createDeviceGroupEntity(deviceGroup);
+    const deviceGroupEntity = createDeviceGroupEntity(deviceGroup);
 
-    if (deviceEntity) {
-      await jobState.addEntity(deviceEntity);
+    if (deviceGroupEntity) {
+      await jobState.addEntity(deviceGroupEntity);
+
+      const deviceGroupDetails = await apiClient.fetchDeviceGroupDetails(
+        deviceGroupEntity.id as string,
+      );
+
+      if (deviceGroupDetails.devices)
+        for (const device of deviceGroupDetails.devices) {
+          const deviceEntity = await jobState.findEntity(
+            `${device.name}-${device.id}`,
+          );
+
+          if (deviceEntity)
+            await jobState.addRelationship(
+              createDirectRelationship({
+                _class: RelationshipClass.HAS,
+                from: deviceGroupEntity,
+                to: deviceEntity,
+              }),
+            );
+        }
     }
   });
 }
@@ -30,8 +50,8 @@ export const deviceGroupsSteps: IntegrationStep<IntegrationConfig>[] = [
     id: Steps.DEVICE_GROUPS,
     name: 'Fetch Device Groups',
     entities: [Entities.DEVICE_GROUP],
-    relationships: [],
-    dependsOn: [],
+    relationships: [Relationships.DEVICE_GROUP_HAS_DEVICE],
+    dependsOn: [Steps.DEVICES],
     executionHandler: fetchDeviceGroups,
   },
 ];

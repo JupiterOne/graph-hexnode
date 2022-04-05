@@ -108,11 +108,12 @@ The following entities are created:
 
 The following relationships are created:
 
-| Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
-| --------------------- | --------------------- | --------------------- |
-| `hexnode_account`     | **HAS**               | `hexnode_user`        |
-| `hexnode_user_group`  | **HAS**               | `hexnode_user`        |
-| `hexnode_user`        | **HAS**               | `hexnode_device`      |
+| Source Entity `_type`  | Relationship `_class` | Target Entity `_type` |
+| ---------------------- | --------------------- | --------------------- |
+| `hexnode_account`      | **HAS**               | `hexnode_user`        |
+| `hexnode_device_group` | **HAS**               | `hexnode_device`      |
+| `hexnode_user_group`   | **HAS**               | `hexnode_user`        |
+| `hexnode_user`         | **HAS**               | `hexnode_device`      |
 
 <!--
 ********************************************************************************

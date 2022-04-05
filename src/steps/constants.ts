@@ -44,7 +44,10 @@ export const Entities: Record<
 };
 
 export const Relationships: Record<
-  'ACCOUNT_HAS_USER' | 'USER_GROUP_HAS_USER' | 'USER_HAS_DEVICE',
+  | 'ACCOUNT_HAS_USER'
+  | 'USER_GROUP_HAS_USER'
+  | 'USER_HAS_DEVICE'
+  | 'DEVICE_GROUP_HAS_DEVICE',
   StepRelationshipMetadata
 > = {
   ACCOUNT_HAS_USER: {
@@ -62,6 +65,12 @@ export const Relationships: Record<
   USER_HAS_DEVICE: {
     _type: 'hexnode_user_has_device',
     sourceType: Entities.USER._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.DEVICE._type,
+  },
+  DEVICE_GROUP_HAS_DEVICE: {
+    _type: 'hexnode_device_group_has_device',
+    sourceType: Entities.DEVICE_GROUP._type,
     _class: RelationshipClass.HAS,
     targetType: Entities.DEVICE._type,
   },
