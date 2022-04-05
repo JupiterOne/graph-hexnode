@@ -4,7 +4,7 @@ import { IntegrationConfig } from '../../../../src/config';
 export const usersSpec: StepSpec<IntegrationConfig>[] = [
   {
     /**
-     * ENDPOINT: https://localhost/api/v1/users
+     * ENDPOINT: https://<portal>.hexnodemdm.com/api/v1/users/
      * PATTERN: Fetch Entities
      */
     id: 'fetch-users',
