@@ -7,12 +7,13 @@ import {
 export const Steps = {
   ACCOUNT: 'fetch-account',
   USERS: 'fetch-users',
-  GROUPS: 'fetch-groups',
+  USER_GROUPS: 'fetch-user-groups',
   DEVICES: 'fetch-devices',
+  DEVICE_GROUPS: 'fetch-device-groups',
 };
 
 export const Entities: Record<
-  'USER' | 'ACCOUNT' | 'GROUP' | 'DEVICE',
+  'USER' | 'ACCOUNT' | 'USER_GROUP' | 'DEVICE' | 'DEVICE_GROUP',
   StepEntityMetadata
 > = {
   ACCOUNT: {
@@ -25,8 +26,8 @@ export const Entities: Record<
     _type: 'hexnode_user',
     _class: ['User'],
   },
-  GROUP: {
-    resourceName: 'Group',
+  USER_GROUP: {
+    resourceName: 'User Group',
     _type: 'hexnode_user_group',
     _class: ['Group'],
   },
@@ -35,10 +36,15 @@ export const Entities: Record<
     _type: 'hexnode_device',
     _class: ['Device'],
   },
+  DEVICE_GROUP: {
+    resourceName: 'Device Group',
+    _type: 'hexnode_device_group',
+    _class: ['Group'],
+  },
 };
 
 export const Relationships: Record<
-  'ACCOUNT_HAS_USER' | 'GROUP_HAS_USER' | 'USER_HAS_DEVICE',
+  'ACCOUNT_HAS_USER' | 'USER_GROUP_HAS_USER' | 'USER_HAS_DEVICE',
   StepRelationshipMetadata
 > = {
   ACCOUNT_HAS_USER: {
@@ -47,9 +53,9 @@ export const Relationships: Record<
     _class: RelationshipClass.HAS,
     targetType: Entities.USER._type,
   },
-  GROUP_HAS_USER: {
+  USER_GROUP_HAS_USER: {
     _type: 'hexnode_user_group_has_user',
-    sourceType: Entities.GROUP._type,
+    sourceType: Entities.USER_GROUP._type,
     _class: RelationshipClass.HAS,
     targetType: Entities.USER._type,
   },

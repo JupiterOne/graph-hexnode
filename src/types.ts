@@ -13,7 +13,7 @@ export type HexnodeUser = {
   domain: string;
 };
 
-export type HexnodeGroup = {
+export type HexnodeUserGroup = {
   id: number;
   groupname: string;
   description: string;
@@ -43,11 +43,11 @@ export type HexnodeUserResponse = HexnodeResponseMeta & {
   results: HexnodeUser[];
 };
 
-export type HexnodeGroupResponse = HexnodeResponseMeta & {
-  results: HexnodeGroup[];
+export type HexnodeUserGroupResponse = HexnodeResponseMeta & {
+  results: HexnodeUserGroup[];
 };
 
-export type HexnodeGroupDetail = {
+export type HexnodeUserGroupDetail = {
   id: number;
   groupname: string;
   description: string;
@@ -56,5 +56,28 @@ export type HexnodeGroupDetail = {
     name: string;
     email?: string;
     phoneno?: string;
+  }[];
+};
+
+export type HexnodeDeviceGroup = {
+  id: number;
+  groupname: string;
+  device_count: number;
+  description: string;
+  grouptype: string;
+  modified_date: string;
+};
+
+export type HexnodeDeviceGroupDetail = {
+  id: number;
+  groupname: string;
+  description: string;
+  devices: {
+    id: number;
+    name: string;
+    user_id: number;
+    user_name: string;
+    model_name: string;
+    platform: string;
   }[];
 };

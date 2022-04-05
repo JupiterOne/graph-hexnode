@@ -96,12 +96,13 @@ https://github.com/JupiterOne/sdk/blob/main/docs/integrations/development.md
 
 The following entities are created:
 
-| Resources | Entity `_type`       | Entity `_class` |
-| --------- | -------------------- | --------------- |
-| Account   | `hexnode_account`    | `Account`       |
-| Device    | `hexnode_device`     | `Device`        |
-| Group     | `hexnode_user_group` | `Group`         |
-| User      | `hexnode_user`       | `User`          |
+| Resources    | Entity `_type`         | Entity `_class` |
+| ------------ | ---------------------- | --------------- |
+| Account      | `hexnode_account`      | `Account`       |
+| Device       | `hexnode_device`       | `Device`        |
+| Device Group | `hexnode_device_group` | `Group`         |
+| User         | `hexnode_user`         | `User`          |
+| User Group   | `hexnode_user_group`   | `Group`         |
 
 ### Relationships
 

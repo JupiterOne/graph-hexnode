@@ -4,22 +4,22 @@ import {
 } from '@jupiterone/integration-sdk-core';
 
 import { Entities } from '../constants';
-import { HexnodeGroup } from '../../types';
+import { HexnodeUserGroup } from '../../types';
 
-export function createGroupEntity(group: HexnodeGroup): Entity {
+export function createUserGroupEntity(userGroup: HexnodeUserGroup): Entity {
   return createIntegrationEntity({
     entityData: {
-      source: group,
+      source: userGroup,
       assign: {
-        _type: Entities.GROUP._type,
-        _class: Entities.GROUP._class,
-        _key: `${group.groupname}-${group.id.toString()}`,
-        id: group.id.toString(),
-        name: group.groupname,
-        groupName: group.groupname,
-        description: group.description,
-        usersCount: group.users_count,
-        modifiedDate: group.modified_date,
+        _type: Entities.USER_GROUP._type,
+        _class: Entities.USER_GROUP._class,
+        _key: `${userGroup.groupname}-${userGroup.id.toString()}`,
+        id: userGroup.id.toString(),
+        name: userGroup.groupname,
+        groupName: userGroup.groupname,
+        description: userGroup.description,
+        usersCount: userGroup.users_count,
+        modifiedDate: userGroup.modified_date,
       },
     },
   });

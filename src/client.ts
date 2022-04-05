@@ -9,9 +9,11 @@ import { IntegrationConfig } from './config';
 import {
   HexnodeUserResponse,
   HexnodeUser,
-  HexnodeGroup,
-  HexnodeGroupDetail,
+  HexnodeUserGroup,
+  HexnodeUserGroupDetail,
   HexnodeDevice,
+  HexnodeDeviceGroupDetail,
+  HexnodeDeviceGroup,
 } from './types';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
@@ -102,10 +104,10 @@ export class APIClient {
    *
    * @param iteratee receives each resource to produce entities/relationships
    */
-  public async iterateGroups(
-    iteratee: ResourceIteratee<HexnodeGroup>,
+  public async iterateUserGroups(
+    iteratee: ResourceIteratee<HexnodeUserGroup>,
   ): Promise<void> {
-    await this.paginatedRequest<HexnodeGroup>(
+    await this.paginatedRequest<HexnodeUserGroup>(
       this.withBaseUri(`usergroups/?per_page=${this.perPage}`),
       'GET',
       iteratee,
@@ -127,9 +129,34 @@ export class APIClient {
     );
   }
 
-  public async fetchUserGroupDetails(id: string): Promise<HexnodeGroupDetail> {
-    return await this.request<HexnodeGroupDetail>(
+  /**
+   * Iterates each user resource in the provider.
+   *
+   * @param iteratee receives each resource to produce entities/relationships
+   */
+  public async iterateDeviceGroups(
+    iteratee: ResourceIteratee<HexnodeDeviceGroup>,
+  ): Promise<void> {
+    await this.paginatedRequest<HexnodeDeviceGroup>(
+      this.withBaseUri(`devicegroups/?per_page=${this.perPage}`),
+      'GET',
+      iteratee,
+    );
+  }
+
+  public async fetchUserGroupDetails(
+    id: string,
+  ): Promise<HexnodeUserGroupDetail> {
+    return await this.request<HexnodeUserGroupDetail>(
       this.withBaseUri(`usergroups/${id}/`),
+    );
+  }
+
+  public async fetchDeviceGroupDetails(
+    id: string,
+  ): Promise<HexnodeDeviceGroupDetail> {
+    return await this.request<HexnodeDeviceGroupDetail>(
+      this.withBaseUri(`devicegroups/${id}/`),
     );
   }
 }

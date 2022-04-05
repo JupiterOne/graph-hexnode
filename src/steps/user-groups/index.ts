@@ -8,16 +8,16 @@ import {
 import { createAPIClient } from '../../client';
 import { IntegrationConfig } from '../../config';
 import { Entities, Relationships, Steps } from '../constants';
-import { createGroupEntity } from './converter';
+import { createUserGroupEntity } from './converter';
 
-export async function fetchGroups({
+export async function fetchUserGroups({
   instance,
   jobState,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config);
 
-  await apiClient.iterateGroups(async (group) => {
-    const groupEntity = createGroupEntity(group);
+  await apiClient.iterateUserGroups(async (group) => {
+    const groupEntity = createUserGroupEntity(group);
     if (groupEntity) {
       await jobState.addEntity(groupEntity);
 
@@ -45,11 +45,11 @@ export async function fetchGroups({
 
 export const userGroupsSteps: IntegrationStep<IntegrationConfig>[] = [
   {
-    id: Steps.GROUPS,
-    name: 'Fetch Groups',
-    entities: [Entities.GROUP],
-    relationships: [Relationships.GROUP_HAS_USER],
+    id: Steps.USER_GROUPS,
+    name: 'Fetch User Groups',
+    entities: [Entities.USER_GROUP],
+    relationships: [Relationships.USER_GROUP_HAS_USER],
     dependsOn: [Steps.USERS],
-    executionHandler: fetchGroups,
+    executionHandler: fetchUserGroups,
   },
 ];
