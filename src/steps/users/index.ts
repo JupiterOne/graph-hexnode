@@ -8,7 +8,6 @@ import {
 
 import { createAPIClient } from '../../client';
 import { IntegrationConfig } from '../../config';
-import { getAccountKey } from '../account/converter';
 import {
   ACCOUNT_ENTITY_KEY,
   Entities,
