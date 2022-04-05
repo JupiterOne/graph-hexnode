@@ -10,8 +10,12 @@ export const Steps = {
   ACCOUNT: 'fetch-account',
   USERS: 'fetch-users',
   USER_GROUPS: 'fetch-user-groups',
+  BUILD_USER_GROUPS_USERS_RELATIONSHIPS:
+    'build-user-groups-and-users-relationships',
   DEVICES: 'fetch-devices',
   DEVICE_GROUPS: 'fetch-device-groups',
+  BUILD_DEVICE_GROUPS_DEVICES_RELATIONSHIPS:
+    'build-device-groups-and-devices-relationships',
 };
 
 export const Entities: Record<

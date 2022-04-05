@@ -19,3 +19,16 @@ test('fetch-device-groups', async () => {
   const stepResult = await executeStepWithDependencies(stepConfig);
   expect(stepResult).toMatchStepMetadata(stepConfig);
 });
+
+test('build-device-groups-and-devices-relationships', async () => {
+  recording = setupProjectRecording({
+    directory: __dirname,
+    name: 'build-device-groups-and-devices-relationships',
+  });
+
+  const stepConfig = buildStepTestConfigForStep(
+    Steps.BUILD_DEVICE_GROUPS_DEVICES_RELATIONSHIPS,
+  );
+  const stepResult = await executeStepWithDependencies(stepConfig);
+  expect(stepResult).toMatchStepMetadata(stepConfig);
+});

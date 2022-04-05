@@ -35,7 +35,19 @@ export async function fetchDeviceGroups({
           to: deviceGroupEntity,
         }),
       );
+    }
+  });
+}
 
+export async function buildDeviceGroupsAndDevicesRelationships({
+  instance,
+  jobState,
+}: IntegrationStepExecutionContext<IntegrationConfig>) {
+  const apiClient = createAPIClient(instance.config);
+
+  await jobState.iterateEntities(
+    { _type: Entities.DEVICE_GROUP._type },
+    async (deviceGroupEntity) => {
       const deviceGroupDetails = await apiClient.fetchDeviceGroupDetails(
         deviceGroupEntity.id as string,
       );
@@ -55,8 +67,8 @@ export async function fetchDeviceGroups({
               }),
             );
         }
-    }
-  });
+    },
+  );
 }
 
 export const deviceGroupsSteps: IntegrationStep<IntegrationConfig>[] = [
@@ -64,11 +76,16 @@ export const deviceGroupsSteps: IntegrationStep<IntegrationConfig>[] = [
     id: Steps.DEVICE_GROUPS,
     name: 'Fetch Device Groups',
     entities: [Entities.DEVICE_GROUP],
-    relationships: [
-      Relationships.DEVICE_GROUP_HAS_DEVICE,
-      Relationships.ACCOUNT_HAS_DEVICE_GROUP,
-    ],
+    relationships: [Relationships.ACCOUNT_HAS_DEVICE_GROUP],
     dependsOn: [Steps.DEVICES, Steps.ACCOUNT],
     executionHandler: fetchDeviceGroups,
+  },
+  {
+    id: Steps.BUILD_DEVICE_GROUPS_DEVICES_RELATIONSHIPS,
+    name: 'Build Device Groups and Devices Relationships',
+    entities: [],
+    relationships: [Relationships.DEVICE_GROUP_HAS_DEVICE],
+    dependsOn: [Steps.DEVICES, Steps.DEVICE_GROUPS],
+    executionHandler: buildDeviceGroupsAndDevicesRelationships,
   },
 ];
