@@ -15,6 +15,7 @@ import {
   HexnodeDeviceGroupDetail,
   HexnodeDeviceGroup,
 } from './types';
+import { retry } from '@lifeomic/attempt';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
 
@@ -35,7 +36,20 @@ export class APIClient {
           Authorization: this.config.apiKey,
         },
       };
-      const response = await fetch(uri, options);
+
+      // Handle rate-limiting
+      const response = await retry(
+        async () => {
+          return await fetch(uri, options);
+        },
+        {
+          delay: 5000,
+          maxAttempts: 10,
+          handleError: (err, context) => {
+            if (err.statusCode !== 429) context.abort();
+          },
+        },
+      );
 
       return response.json();
     } catch (err) {
