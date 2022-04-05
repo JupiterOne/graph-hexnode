@@ -17,7 +17,7 @@ export function createDeviceEntity(device: HexnodeDevice): Entity {
         id: device.id.toString(),
         name: device.device_name,
         make: device.device_name,
-        category: 'mobile',
+        category: 'endpoint',
         model: device.model_name,
         deviceId: device.udid,
         osName: device.os_name,
