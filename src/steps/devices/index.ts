@@ -1,5 +1,6 @@
 import {
   createDirectRelationship,
+  Entity,
   IntegrationStep,
   IntegrationStepExecutionContext,
   RelationshipClass,
@@ -7,7 +8,12 @@ import {
 
 import { createAPIClient } from '../../client';
 import { IntegrationConfig } from '../../config';
-import { Entities, Relationships, Steps } from '../constants';
+import {
+  ACCOUNT_ENTITY_KEY,
+  Entities,
+  Relationships,
+  Steps,
+} from '../constants';
 import { createDeviceEntity } from './converter';
 
 export async function fetchDevices({
@@ -21,6 +27,14 @@ export async function fetchDevices({
 
     if (deviceEntity) {
       await jobState.addEntity(deviceEntity);
+
+      await jobState.addRelationship(
+        createDirectRelationship({
+          _class: RelationshipClass.HAS,
+          from: (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity,
+          to: deviceEntity,
+        }),
+      );
 
       const userEntity = await jobState.findEntity(
         `${device.user.name}-${device.user.id.toString()}`,
@@ -43,8 +57,11 @@ export const devicesSteps: IntegrationStep<IntegrationConfig>[] = [
     id: Steps.DEVICES,
     name: 'Fetch Devices',
     entities: [Entities.DEVICE],
-    relationships: [Relationships.USER_HAS_DEVICE],
-    dependsOn: [Steps.USERS],
+    relationships: [
+      Relationships.USER_HAS_DEVICE,
+      Relationships.ACCOUNT_HAS_DEVICE,
+    ],
+    dependsOn: [Steps.USERS, Steps.ACCOUNT],
     executionHandler: fetchDevices,
   },
 ];

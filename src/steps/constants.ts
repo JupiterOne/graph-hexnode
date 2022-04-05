@@ -4,6 +4,8 @@ import {
   StepRelationshipMetadata,
 } from '@jupiterone/integration-sdk-core';
 
+export const ACCOUNT_ENTITY_KEY = 'entity:account';
+
 export const Steps = {
   ACCOUNT: 'fetch-account',
   USERS: 'fetch-users',
@@ -45,6 +47,9 @@ export const Entities: Record<
 
 export const Relationships: Record<
   | 'ACCOUNT_HAS_USER'
+  | 'ACCOUNT_HAS_USER_GROUP'
+  | 'ACCOUNT_HAS_DEVICE'
+  | 'ACCOUNT_HAS_DEVICE_GROUP'
   | 'USER_GROUP_HAS_USER'
   | 'USER_HAS_DEVICE'
   | 'DEVICE_GROUP_HAS_DEVICE',
@@ -73,5 +78,23 @@ export const Relationships: Record<
     sourceType: Entities.DEVICE_GROUP._type,
     _class: RelationshipClass.HAS,
     targetType: Entities.DEVICE._type,
+  },
+  ACCOUNT_HAS_USER_GROUP: {
+    _type: 'hexnode_account_has_user_group',
+    sourceType: Entities.ACCOUNT._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.USER_GROUP._type,
+  },
+  ACCOUNT_HAS_DEVICE: {
+    _type: 'hexnode_account_has_device',
+    sourceType: Entities.ACCOUNT._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.DEVICE._type,
+  },
+  ACCOUNT_HAS_DEVICE_GROUP: {
+    _type: 'hexnode_account_has_device_group',
+    sourceType: Entities.ACCOUNT._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.DEVICE_GROUP._type,
   },
 };

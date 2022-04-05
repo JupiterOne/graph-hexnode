@@ -1,5 +1,6 @@
 import {
   createDirectRelationship,
+  Entity,
   IntegrationStep,
   IntegrationStepExecutionContext,
   RelationshipClass,
@@ -8,7 +9,12 @@ import {
 import { createAPIClient } from '../../client';
 import { IntegrationConfig } from '../../config';
 import { getAccountKey } from '../account/converter';
-import { Entities, Relationships, Steps } from '../constants';
+import {
+  ACCOUNT_ENTITY_KEY,
+  Entities,
+  Relationships,
+  Steps,
+} from '../constants';
 import { createUserEntity } from './converter';
 
 export async function fetchUsers({
@@ -16,9 +22,7 @@ export async function fetchUsers({
   jobState,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config);
-  const accountEntity = await jobState.findEntity(
-    getAccountKey(instance.config.email),
-  );
+  const accountEntity = await jobState.getData(ACCOUNT_ENTITY_KEY);
 
   await apiClient.iterateUsers(async (user) => {
     const userEntity = createUserEntity(user);
@@ -29,7 +33,7 @@ export async function fetchUsers({
         await jobState.addRelationship(
           createDirectRelationship({
             _class: RelationshipClass.HAS,
-            from: accountEntity,
+            from: accountEntity as Entity,
             to: userEntity,
           }),
         );

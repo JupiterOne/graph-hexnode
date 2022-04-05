@@ -1,5 +1,6 @@
 import {
   createDirectRelationship,
+  Entity,
   IntegrationStep,
   IntegrationStepExecutionContext,
   RelationshipClass,
@@ -7,7 +8,12 @@ import {
 
 import { createAPIClient } from '../../client';
 import { IntegrationConfig } from '../../config';
-import { Entities, Relationships, Steps } from '../constants';
+import {
+  ACCOUNT_ENTITY_KEY,
+  Entities,
+  Relationships,
+  Steps,
+} from '../constants';
 import { createUserGroupEntity } from './converter';
 
 export async function fetchUserGroups({
@@ -16,13 +22,21 @@ export async function fetchUserGroups({
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config);
 
-  await apiClient.iterateUserGroups(async (group) => {
-    const groupEntity = createUserGroupEntity(group);
-    if (groupEntity) {
-      await jobState.addEntity(groupEntity);
+  await apiClient.iterateUserGroups(async (userGroup) => {
+    const userGroupEntity = createUserGroupEntity(userGroup);
+    if (userGroupEntity) {
+      await jobState.addEntity(userGroupEntity);
+
+      await jobState.addRelationship(
+        createDirectRelationship({
+          _class: RelationshipClass.HAS,
+          from: (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity,
+          to: userGroupEntity,
+        }),
+      );
 
       const groupDetail = await apiClient.fetchUserGroupDetails(
-        groupEntity.id as string,
+        userGroupEntity.id as string,
       );
 
       for (const user of groupDetail.users) {
@@ -34,7 +48,7 @@ export async function fetchUserGroups({
           await jobState.addRelationship(
             createDirectRelationship({
               _class: RelationshipClass.HAS,
-              from: groupEntity,
+              from: userGroupEntity,
               to: userEntity,
             }),
           );
@@ -48,8 +62,11 @@ export const userGroupsSteps: IntegrationStep<IntegrationConfig>[] = [
     id: Steps.USER_GROUPS,
     name: 'Fetch User Groups',
     entities: [Entities.USER_GROUP],
-    relationships: [Relationships.USER_GROUP_HAS_USER],
-    dependsOn: [Steps.USERS],
+    relationships: [
+      Relationships.USER_GROUP_HAS_USER,
+      Relationships.ACCOUNT_HAS_USER_GROUP,
+    ],
+    dependsOn: [Steps.USERS, Steps.ACCOUNT],
     executionHandler: fetchUserGroups,
   },
 ];

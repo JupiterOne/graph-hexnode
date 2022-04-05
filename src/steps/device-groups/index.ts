@@ -1,5 +1,6 @@
 import {
   createDirectRelationship,
+  Entity,
   IntegrationStep,
   IntegrationStepExecutionContext,
   RelationshipClass,
@@ -7,7 +8,12 @@ import {
 
 import { createAPIClient } from '../../client';
 import { IntegrationConfig } from '../../config';
-import { Entities, Relationships, Steps } from '../constants';
+import {
+  ACCOUNT_ENTITY_KEY,
+  Entities,
+  Relationships,
+  Steps,
+} from '../constants';
 import { createDeviceGroupEntity } from './converter';
 
 export async function fetchDeviceGroups({
@@ -21,6 +27,14 @@ export async function fetchDeviceGroups({
 
     if (deviceGroupEntity) {
       await jobState.addEntity(deviceGroupEntity);
+
+      await jobState.addRelationship(
+        createDirectRelationship({
+          _class: RelationshipClass.HAS,
+          from: (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity,
+          to: deviceGroupEntity,
+        }),
+      );
 
       const deviceGroupDetails = await apiClient.fetchDeviceGroupDetails(
         deviceGroupEntity.id as string,
@@ -50,8 +64,11 @@ export const deviceGroupsSteps: IntegrationStep<IntegrationConfig>[] = [
     id: Steps.DEVICE_GROUPS,
     name: 'Fetch Device Groups',
     entities: [Entities.DEVICE_GROUP],
-    relationships: [Relationships.DEVICE_GROUP_HAS_DEVICE],
-    dependsOn: [Steps.DEVICES],
+    relationships: [
+      Relationships.DEVICE_GROUP_HAS_DEVICE,
+      Relationships.ACCOUNT_HAS_DEVICE_GROUP,
+    ],
+    dependsOn: [Steps.DEVICES, Steps.ACCOUNT],
     executionHandler: fetchDeviceGroups,
   },
 ];
