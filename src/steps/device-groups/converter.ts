@@ -6,6 +6,10 @@ import { HexnodeDeviceGroup } from '../../types';
 
 import { Entities } from '../constants';
 
+export function getDeviceGroupKey(id: number): string {
+  return `hexnode_device_group:${id}`;
+}
+
 export function createDeviceGroupEntity(
   deviceGroup: HexnodeDeviceGroup,
 ): Entity {
@@ -15,7 +19,7 @@ export function createDeviceGroupEntity(
       assign: {
         _type: Entities.DEVICE_GROUP._type,
         _class: Entities.DEVICE_GROUP._class,
-        _key: `${deviceGroup.groupname}-${deviceGroup.id.toString()}`,
+        _key: getDeviceGroupKey(deviceGroup.id),
         id: deviceGroup.id.toString(),
         name: deviceGroup.groupname,
         groupName: deviceGroup.groupname,

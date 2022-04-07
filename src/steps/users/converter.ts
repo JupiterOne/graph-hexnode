@@ -6,6 +6,10 @@ import {
 import { Entities } from '../constants';
 import { HexnodeUser } from '../../types';
 
+export function getUserKey(id: number): string {
+  return `hexnode_user:${id.toString()}`;
+}
+
 export function createUserEntity(user: HexnodeUser): Entity {
   return createIntegrationEntity({
     entityData: {
@@ -13,7 +17,7 @@ export function createUserEntity(user: HexnodeUser): Entity {
       assign: {
         _type: Entities.USER._type,
         _class: Entities.USER._class,
-        _key: `${user.name}-${user.id.toString()}`,
+        _key: getUserKey(user.id),
         id: user.id.toString(),
         username: user.name,
         // email: user.email, What is the value when null?

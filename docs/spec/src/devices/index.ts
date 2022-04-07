@@ -18,19 +18,32 @@ export const devicesSpec: StepSpec<IntegrationConfig>[] = [
     ],
     relationships: [
       {
-        _type: 'hexnode_user_has_device',
-        sourceType: 'hexnode_user',
-        _class: RelationshipClass.HAS,
-        targetType: 'hexnode_device',
-      },
-      {
         _type: 'hexnode_account_has_device',
         sourceType: 'hexnode_account',
         _class: RelationshipClass.HAS,
         targetType: 'hexnode_device',
       },
     ],
-    dependsOn: ['fetch-users', 'fetch-account'],
+    dependsOn: ['fetch-account'],
+    implemented: true,
+  },
+  {
+    /**
+     * ENDPOINT: N/A
+     * PATTERN: Build Relationships
+     */
+    id: 'build-devices-and-users-relationships',
+    name: 'Build Devices and Users Relationships',
+    entities: [],
+    relationships: [
+      {
+        _type: 'hexnode_user_has_device',
+        sourceType: 'hexnode_user',
+        _class: RelationshipClass.HAS,
+        targetType: 'hexnode_device',
+      },
+    ],
+    dependsOn: ['fetch-users', 'fetch-devices'],
     implemented: true,
   },
 ];

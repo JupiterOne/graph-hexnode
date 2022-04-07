@@ -14,6 +14,7 @@ import {
   Relationships,
   Steps,
 } from '../constants';
+import { getDeviceKey } from '../devices/converter';
 import { createDeviceGroupEntity } from './converter';
 
 export async function fetchDeviceGroups({
@@ -21,21 +22,20 @@ export async function fetchDeviceGroups({
   jobState,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config);
+  const accountEntity = (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity;
 
   await apiClient.iterateDeviceGroups(async (deviceGroup) => {
     const deviceGroupEntity = createDeviceGroupEntity(deviceGroup);
 
-    if (deviceGroupEntity) {
-      await jobState.addEntity(deviceGroupEntity);
+    await jobState.addEntity(deviceGroupEntity);
 
-      await jobState.addRelationship(
-        createDirectRelationship({
-          _class: RelationshipClass.HAS,
-          from: (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity,
-          to: deviceGroupEntity,
-        }),
-      );
-    }
+    await jobState.addRelationship(
+      createDirectRelationship({
+        _class: RelationshipClass.HAS,
+        from: accountEntity,
+        to: deviceGroupEntity,
+      }),
+    );
   });
 }
 
@@ -55,7 +55,7 @@ export async function buildDeviceGroupsAndDevicesRelationships({
       if (deviceGroupDetails.devices)
         for (const device of deviceGroupDetails.devices) {
           const deviceEntity = await jobState.findEntity(
-            `${device.name}-${device.id}`,
+            getDeviceKey(device.id),
           );
 
           if (deviceEntity)
@@ -77,7 +77,7 @@ export const deviceGroupsSteps: IntegrationStep<IntegrationConfig>[] = [
     name: 'Fetch Device Groups',
     entities: [Entities.DEVICE_GROUP],
     relationships: [Relationships.ACCOUNT_HAS_DEVICE_GROUP],
-    dependsOn: [Steps.DEVICES, Steps.ACCOUNT],
+    dependsOn: [Steps.ACCOUNT],
     executionHandler: fetchDeviceGroups,
   },
   {

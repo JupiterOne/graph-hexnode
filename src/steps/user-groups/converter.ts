@@ -6,6 +6,10 @@ import {
 import { Entities } from '../constants';
 import { HexnodeUserGroup } from '../../types';
 
+export function getUserGroupKey(id: number): string {
+  return `hexnode_user_group:${id.toString()}`;
+}
+
 export function createUserGroupEntity(userGroup: HexnodeUserGroup): Entity {
   return createIntegrationEntity({
     entityData: {
@@ -13,7 +17,7 @@ export function createUserGroupEntity(userGroup: HexnodeUserGroup): Entity {
       assign: {
         _type: Entities.USER_GROUP._type,
         _class: Entities.USER_GROUP._class,
-        _key: `${userGroup.groupname}-${userGroup.id.toString()}`,
+        _key: getUserGroupKey(userGroup.id),
         id: userGroup.id.toString(),
         name: userGroup.groupname,
         groupName: userGroup.groupname,

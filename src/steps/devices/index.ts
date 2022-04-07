@@ -14,6 +14,7 @@ import {
   Relationships,
   Steps,
 } from '../constants';
+import { getUserKey } from '../users/converter';
 import { createDeviceEntity } from './converter';
 
 export async function fetchDevices({
@@ -24,20 +25,30 @@ export async function fetchDevices({
 
   await apiClient.iterateDevices(async (device) => {
     const deviceEntity = createDeviceEntity(device);
+    const accountEntity = (await jobState.getData(
+      ACCOUNT_ENTITY_KEY,
+    )) as Entity;
 
-    if (deviceEntity) {
-      await jobState.addEntity(deviceEntity);
+    await jobState.addEntity(deviceEntity);
 
-      await jobState.addRelationship(
-        createDirectRelationship({
-          _class: RelationshipClass.HAS,
-          from: (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity,
-          to: deviceEntity,
-        }),
-      );
+    await jobState.addRelationship(
+      createDirectRelationship({
+        _class: RelationshipClass.HAS,
+        from: accountEntity,
+        to: deviceEntity,
+      }),
+    );
+  });
+}
 
+export async function buildDeviceAndUserRelationships({
+  jobState,
+}: IntegrationStepExecutionContext<IntegrationConfig>) {
+  await jobState.iterateEntities(
+    { _type: Entities.DEVICE._type },
+    async (deviceEntity) => {
       const userEntity = await jobState.findEntity(
-        `${device.user.name}-${device.user.id.toString()}`,
+        getUserKey(deviceEntity.userId as number),
       );
 
       if (userEntity)
@@ -48,8 +59,8 @@ export async function fetchDevices({
             to: deviceEntity,
           }),
         );
-    }
-  });
+    },
+  );
 }
 
 export const devicesSteps: IntegrationStep<IntegrationConfig>[] = [
@@ -57,11 +68,16 @@ export const devicesSteps: IntegrationStep<IntegrationConfig>[] = [
     id: Steps.DEVICES,
     name: 'Fetch Devices',
     entities: [Entities.DEVICE],
-    relationships: [
-      Relationships.USER_HAS_DEVICE,
-      Relationships.ACCOUNT_HAS_DEVICE,
-    ],
-    dependsOn: [Steps.USERS, Steps.ACCOUNT],
+    relationships: [Relationships.ACCOUNT_HAS_DEVICE],
+    dependsOn: [Steps.ACCOUNT],
     executionHandler: fetchDevices,
+  },
+  {
+    id: Steps.BUILD_DEVICES_AND_USERS_RELATIONSHIPS,
+    name: 'Build Devices and Users Relationships',
+    entities: [],
+    relationships: [Relationships.USER_HAS_DEVICE],
+    dependsOn: [Steps.USERS, Steps.DEVICES],
+    executionHandler: buildDeviceAndUserRelationships,
   },
 ];

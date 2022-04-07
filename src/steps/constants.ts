@@ -16,6 +16,8 @@ export const Steps = {
   DEVICE_GROUPS: 'fetch-device-groups',
   BUILD_DEVICE_GROUPS_DEVICES_RELATIONSHIPS:
     'build-device-groups-and-devices-relationships',
+  BUILD_DEVICES_AND_USERS_RELATIONSHIPS:
+    'build-devices-and-users-relationships',
 };
 
 export const Entities: Record<

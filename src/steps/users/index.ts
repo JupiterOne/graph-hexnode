@@ -26,17 +26,15 @@ export async function fetchUsers({
   await apiClient.iterateUsers(async (user) => {
     const userEntity = createUserEntity(user);
 
-    if (userEntity) {
-      await jobState.addEntity(userEntity);
-      if (accountEntity)
-        await jobState.addRelationship(
-          createDirectRelationship({
-            _class: RelationshipClass.HAS,
-            from: accountEntity as Entity,
-            to: userEntity,
-          }),
-        );
-    }
+    await jobState.addEntity(userEntity);
+
+    await jobState.addRelationship(
+      createDirectRelationship({
+        _class: RelationshipClass.HAS,
+        from: accountEntity as Entity,
+        to: userEntity,
+      }),
+    );
   });
 }
 

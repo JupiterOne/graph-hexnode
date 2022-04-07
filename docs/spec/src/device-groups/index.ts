@@ -24,7 +24,7 @@ export const deviceGroupsSpec: StepSpec<IntegrationConfig>[] = [
         targetType: 'hexnode_device_group',
       },
     ],
-    dependsOn: ['fetch-devices', 'fetch-account'],
+    dependsOn: ['fetch-account'],
     implemented: true,
   },
   {

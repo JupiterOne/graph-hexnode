@@ -6,6 +6,10 @@ import { HexnodeDevice } from '../../types';
 
 import { Entities } from '../constants';
 
+export function getDeviceKey(id: number): string {
+  return `hexnode_device:${id.toString()}`;
+}
+
 export function createDeviceEntity(device: HexnodeDevice): Entity {
   return createIntegrationEntity({
     entityData: {
@@ -13,7 +17,7 @@ export function createDeviceEntity(device: HexnodeDevice): Entity {
       assign: {
         _type: Entities.DEVICE._type,
         _class: Entities.DEVICE._class,
-        _key: `${device.device_name}-${device.id.toString()}`,
+        _key: getDeviceKey(device.id),
         id: device.id.toString(),
         name: device.device_name,
         make: device.device_name,
@@ -27,6 +31,8 @@ export function createDeviceEntity(device: HexnodeDevice): Entity {
         compliant: device.compliant,
         serial: device.serial_number,
         enrollmentStatus: device.enrollment_status,
+        userId: device.user.id,
+        userName: device.user.name,
       },
     },
   });

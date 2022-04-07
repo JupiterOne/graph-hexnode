@@ -24,7 +24,7 @@ export const userGroupsSpec: StepSpec<IntegrationConfig>[] = [
         targetType: 'hexnode_user_group',
       },
     ],
-    dependsOn: ['fetch-users', 'fetch-account'],
+    dependsOn: ['fetch-account'],
     implemented: true,
   },
   {

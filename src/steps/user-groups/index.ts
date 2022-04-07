@@ -14,6 +14,7 @@ import {
   Relationships,
   Steps,
 } from '../constants';
+import { getUserKey } from '../users/converter';
 import { createUserGroupEntity } from './converter';
 
 export async function fetchUserGroups({
@@ -21,20 +22,19 @@ export async function fetchUserGroups({
   jobState,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config);
+  const accountEntity = (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity;
 
   await apiClient.iterateUserGroups(async (userGroup) => {
     const userGroupEntity = createUserGroupEntity(userGroup);
-    if (userGroupEntity) {
-      await jobState.addEntity(userGroupEntity);
+    await jobState.addEntity(userGroupEntity);
 
-      await jobState.addRelationship(
-        createDirectRelationship({
-          _class: RelationshipClass.HAS,
-          from: (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity,
-          to: userGroupEntity,
-        }),
-      );
-    }
+    await jobState.addRelationship(
+      createDirectRelationship({
+        _class: RelationshipClass.HAS,
+        from: accountEntity,
+        to: userGroupEntity,
+      }),
+    );
   });
 }
 
@@ -52,9 +52,7 @@ export async function buildUserGroupsAndUserRelationships({
       );
 
       for (const user of userGroupDetail.users) {
-        const userEntity = await jobState.findEntity(
-          `${user.name}-${user.id.toString()}`,
-        );
+        const userEntity = await jobState.findEntity(getUserKey(user.id));
 
         if (userEntity)
           await jobState.addRelationship(
@@ -75,7 +73,7 @@ export const userGroupsSteps: IntegrationStep<IntegrationConfig>[] = [
     name: 'Fetch User Groups',
     entities: [Entities.USER_GROUP],
     relationships: [Relationships.ACCOUNT_HAS_USER_GROUP],
-    dependsOn: [Steps.USERS, Steps.ACCOUNT],
+    dependsOn: [Steps.ACCOUNT],
     executionHandler: fetchUserGroups,
   },
   {
