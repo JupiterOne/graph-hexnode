@@ -20,7 +20,7 @@ export function createUserEntity(user: HexnodeUser): Entity {
         _key: getUserKey(user.id),
         id: user.id.toString(),
         username: user.name,
-        // email: user.email, What is the value when null?
+        email: user.email || undefined,
         active: true,
         phoneno: user?.phoneno,
         totalDevices: user.total_devices,

@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import fetch, { Response } from 'node-fetch';
 
 import {
   IntegrationProviderAPIError,
@@ -7,7 +7,6 @@ import {
 
 import { IntegrationConfig } from './config';
 import {
-  HexnodeUserResponse,
   HexnodeUser,
   HexnodeUserGroup,
   HexnodeUserGroupDetail,
@@ -25,10 +24,10 @@ export class APIClient {
   private baseUri = `https://${this.config.hostname}/api/v1/`;
   private withBaseUri = (path: string) => `${this.baseUri}${path}`;
 
-  private async request<T>(
+  private async request(
     uri: string,
     method: 'GET' | 'HEAD' = 'GET',
-  ): Promise<any> {
+  ): Promise<Response> {
     try {
       const options = {
         method,
@@ -46,7 +45,12 @@ export class APIClient {
           delay: 5000,
           maxAttempts: 10,
           handleError: (err, context) => {
-            if (err.statusCode !== 429) context.abort();
+            if (
+              err.statusCode !== 429 ||
+              ([500, 502, 503].includes(err.statusCode) &&
+                context.attemptNum > 1)
+            )
+              context.abort();
           },
         },
       );
@@ -69,7 +73,7 @@ export class APIClient {
     try {
       let next = null;
       do {
-        const response = await this.request<T>(next || uri, method);
+        const response = await this.request(next || uri, method);
 
         for (const result of response.results) await iteratee(result);
         next = response.next;
@@ -87,7 +91,7 @@ export class APIClient {
   public async verifyAuthentication(): Promise<void> {
     const uri = this.withBaseUri('users/');
     try {
-      await this.request<HexnodeUserResponse>(uri);
+      await this.request(uri);
     } catch (err) {
       throw new IntegrationProviderAuthenticationError({
         cause: err,
@@ -161,17 +165,13 @@ export class APIClient {
   public async fetchUserGroupDetails(
     id: string,
   ): Promise<HexnodeUserGroupDetail> {
-    return await this.request<HexnodeUserGroupDetail>(
-      this.withBaseUri(`usergroups/${id}/`),
-    );
+    return await this.request(this.withBaseUri(`usergroups/${id}/`));
   }
 
   public async fetchDeviceGroupDetails(
     id: string,
   ): Promise<HexnodeDeviceGroupDetail> {
-    return await this.request<HexnodeDeviceGroupDetail>(
-      this.withBaseUri(`devicegroups/${id}/`),
-    );
+    return await this.request(this.withBaseUri(`devicegroups/${id}/`));
   }
 }
 
