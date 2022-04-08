@@ -22,15 +22,12 @@ export async function fetchDevices({
   jobState,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config);
+  const accountEntity = (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity;
 
   await apiClient.iterateDevices(async (device) => {
     const deviceEntity = createDeviceEntity(device);
-    const accountEntity = (await jobState.getData(
-      ACCOUNT_ENTITY_KEY,
-    )) as Entity;
 
     await jobState.addEntity(deviceEntity);
-
     await jobState.addRelationship(
       createDirectRelationship({
         _class: RelationshipClass.HAS,
