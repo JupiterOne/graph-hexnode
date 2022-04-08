@@ -14,8 +14,8 @@ interacting with the Hexnode resources.
 
 ## Authentication
 
-Provide the `API_KEY`, `HOSTNAME`, and the company `EMAIL` that you used to
-register for the account to the `.env`. You can use
-[`.env.example`](../.env.example) as a reference.
+Provide the `API_KEY`, `HOSTNAME` (format is: "example.hexnodemdm.com"), and the
+company `EMAIL` that you used to register for the account to the `.env`. You can
+use [`.env.example`](../.env.example) as a reference.
 
 The API Key will be used to authorize requests using Basic Authorization.
