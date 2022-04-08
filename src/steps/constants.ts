@@ -4,77 +4,103 @@ import {
   StepRelationshipMetadata,
 } from '@jupiterone/integration-sdk-core';
 
+export const ACCOUNT_ENTITY_KEY = 'entity:account';
+
 export const Steps = {
   ACCOUNT: 'fetch-account',
   USERS: 'fetch-users',
-  GROUPS: 'fetch-groups',
-  GROUP_USER_RELATIONSHIPS: 'build-user-group-relationships',
+  USER_GROUPS: 'fetch-user-groups',
+  BUILD_USER_GROUPS_USERS_RELATIONSHIPS:
+    'build-user-groups-and-users-relationships',
+  DEVICES: 'fetch-devices',
+  DEVICE_GROUPS: 'fetch-device-groups',
+  BUILD_DEVICE_GROUPS_DEVICES_RELATIONSHIPS:
+    'build-device-groups-and-devices-relationships',
+  BUILD_DEVICES_AND_USERS_RELATIONSHIPS:
+    'build-devices-and-users-relationships',
 };
 
 export const Entities: Record<
-  'ACCOUNT' | 'GROUP' | 'USER',
+  'USER' | 'ACCOUNT' | 'USER_GROUP' | 'DEVICE' | 'DEVICE_GROUP',
   StepEntityMetadata
 > = {
   ACCOUNT: {
     resourceName: 'Account',
-    _type: 'acme_account',
+    _type: 'hexnode_account',
     _class: ['Account'],
-    schema: {
-      properties: {
-        mfaEnabled: { type: 'boolean' },
-        manager: { type: 'string' },
-      },
-      required: ['mfaEnabled', 'manager'],
-    },
-  },
-  GROUP: {
-    resourceName: 'UserGroup',
-    _type: 'acme_group',
-    _class: ['UserGroup'],
-    schema: {
-      properties: {
-        email: { type: 'string' },
-        logoLink: { type: 'string' },
-      },
-      required: ['email', 'logoLink'],
-    },
   },
   USER: {
     resourceName: 'User',
-    _type: 'acme_user',
+    _type: 'hexnode_user',
     _class: ['User'],
-    schema: {
-      properties: {
-        username: { type: 'string' },
-        email: { type: 'string' },
-        active: { type: 'boolean' },
-        firstName: { type: 'string' },
-      },
-      required: ['username', 'email', 'active', 'firstName'],
-    },
+  },
+  USER_GROUP: {
+    resourceName: 'User Group',
+    _type: 'hexnode_user_group',
+    _class: ['Group'],
+  },
+  DEVICE: {
+    resourceName: 'Device',
+    _type: 'hexnode_device',
+    _class: ['Device'],
+  },
+  DEVICE_GROUP: {
+    resourceName: 'Device Group',
+    _type: 'hexnode_device_group',
+    _class: ['Group'],
   },
 };
 
 export const Relationships: Record<
-  'ACCOUNT_HAS_USER' | 'ACCOUNT_HAS_GROUP' | 'GROUP_HAS_USER',
+  | 'ACCOUNT_HAS_USER'
+  | 'ACCOUNT_HAS_USER_GROUP'
+  | 'ACCOUNT_HAS_DEVICE'
+  | 'ACCOUNT_HAS_DEVICE_GROUP'
+  | 'USER_GROUP_HAS_USER'
+  | 'USER_HAS_DEVICE'
+  | 'DEVICE_GROUP_HAS_DEVICE',
   StepRelationshipMetadata
 > = {
   ACCOUNT_HAS_USER: {
-    _type: 'acme_account_has_user',
+    _type: 'hexnode_account_has_user',
     sourceType: Entities.ACCOUNT._type,
     _class: RelationshipClass.HAS,
     targetType: Entities.USER._type,
   },
-  ACCOUNT_HAS_GROUP: {
-    _type: 'acme_account_has_group',
-    sourceType: Entities.ACCOUNT._type,
-    _class: RelationshipClass.HAS,
-    targetType: Entities.GROUP._type,
-  },
-  GROUP_HAS_USER: {
-    _type: 'acme_group_has_user',
-    sourceType: Entities.GROUP._type,
+  USER_GROUP_HAS_USER: {
+    _type: 'hexnode_user_group_has_user',
+    sourceType: Entities.USER_GROUP._type,
     _class: RelationshipClass.HAS,
     targetType: Entities.USER._type,
+  },
+  USER_HAS_DEVICE: {
+    _type: 'hexnode_user_has_device',
+    sourceType: Entities.USER._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.DEVICE._type,
+  },
+  DEVICE_GROUP_HAS_DEVICE: {
+    _type: 'hexnode_device_group_has_device',
+    sourceType: Entities.DEVICE_GROUP._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.DEVICE._type,
+  },
+  ACCOUNT_HAS_USER_GROUP: {
+    _type: 'hexnode_account_has_user_group',
+    sourceType: Entities.ACCOUNT._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.USER_GROUP._type,
+  },
+  ACCOUNT_HAS_DEVICE: {
+    _type: 'hexnode_account_has_device',
+    sourceType: Entities.ACCOUNT._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.DEVICE._type,
+  },
+  ACCOUNT_HAS_DEVICE_GROUP: {
+    _type: 'hexnode_account_has_device_group',
+    sourceType: Entities.ACCOUNT._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.DEVICE_GROUP._type,
   },
 };

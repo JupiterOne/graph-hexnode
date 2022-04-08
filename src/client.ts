@@ -1,52 +1,101 @@
-import http from 'http';
+import fetch, { Response } from 'node-fetch';
 
-import { IntegrationProviderAuthenticationError } from '@jupiterone/integration-sdk-core';
+import {
+  IntegrationProviderAPIError,
+  IntegrationProviderAuthenticationError,
+} from '@jupiterone/integration-sdk-core';
 
 import { IntegrationConfig } from './config';
-import { AcmeUser, AcmeGroup } from './types';
+import {
+  HexnodeUser,
+  HexnodeUserGroup,
+  HexnodeUserGroupDetail,
+  HexnodeDevice,
+  HexnodeDeviceGroupDetail,
+  HexnodeDeviceGroup,
+} from './types';
+import { retry } from '@lifeomic/attempt';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
 
-/**
- * An APIClient maintains authentication state and provides an interface to
- * third party data APIs.
- *
- * It is recommended that integrations wrap provider data APIs to provide a
- * place to handle error responses and implement common patterns for iterating
- * resources.
- */
 export class APIClient {
   constructor(readonly config: IntegrationConfig) {}
+  private perPage = 100;
+  private baseUri = `https://${this.config.hostname}/api/v1/`;
+  private withBaseUri = (path: string) => `${this.baseUri}${path}`;
 
-  public async verifyAuthentication(): Promise<void> {
-    // TODO make the most light-weight request possible to validate
-    // authentication works with the provided credentials, throw an err if
-    // authentication fails
-    const request = new Promise<void>((resolve, reject) => {
-      http.get(
-        {
-          hostname: 'localhost',
-          port: 443,
-          path: '/api/v1/some/endpoint?limit=1',
-          agent: false,
-          timeout: 10,
+  private async request(
+    uri: string,
+    method: 'GET' | 'HEAD' = 'GET',
+  ): Promise<Response> {
+    try {
+      const options = {
+        method,
+        headers: {
+          Authorization: this.config.apiKey,
         },
-        (res) => {
-          if (res.statusCode !== 200) {
-            reject(new Error('Provider authentication failed'));
-          } else {
-            resolve();
-          }
+      };
+
+      // Handle rate-limiting
+      const response = await retry(
+        async () => {
+          return await fetch(uri, options);
+        },
+        {
+          delay: 5000,
+          maxAttempts: 10,
+          handleError: (err, context) => {
+            if (
+              err.statusCode !== 429 ||
+              ([500, 502, 503].includes(err.statusCode) &&
+                context.attemptNum > 1)
+            )
+              context.abort();
+          },
         },
       );
-    });
 
+      return response.json();
+    } catch (err) {
+      throw new IntegrationProviderAPIError({
+        endpoint: uri,
+        status: err.status,
+        statusText: err.statusText,
+      });
+    }
+  }
+
+  private async paginatedRequest<T>(
+    uri: string,
+    method: 'GET' | 'HEAD' = 'GET',
+    iteratee: ResourceIteratee<T>,
+  ): Promise<void> {
     try {
-      await request;
+      let next = null;
+      do {
+        const response = await this.request(next || uri, method);
+
+        for (const result of response.results) await iteratee(result);
+        next = response.next;
+      } while (next);
+    } catch (err) {
+      throw new IntegrationProviderAPIError({
+        cause: new Error(err.message),
+        endpoint: uri,
+        status: err.statusCode,
+        statusText: err.message,
+      });
+    }
+  }
+
+  public async verifyAuthentication(): Promise<void> {
+    const uri = this.withBaseUri('users/');
+    try {
+      await this.request(uri);
     } catch (err) {
       throw new IntegrationProviderAuthenticationError({
         cause: err,
-        endpoint: 'https://localhost/api/v1/some/endpoint?limit=1',
+        endpoint: uri,
         status: err.status,
         statusText: err.statusText,
       });
@@ -59,63 +108,70 @@ export class APIClient {
    * @param iteratee receives each resource to produce entities/relationships
    */
   public async iterateUsers(
-    iteratee: ResourceIteratee<AcmeUser>,
+    iteratee: ResourceIteratee<HexnodeUser>,
   ): Promise<void> {
-    // TODO paginate an endpoint, invoke the iteratee with each record in the
-    // page
-    //
-    // The provider API will hopefully support pagination. Functions like this
-    // should maintain pagination state, and for each page, for each record in
-    // the page, invoke the `ResourceIteratee`. This will encourage a pattern
-    // where each resource is processed and dropped from memory.
-
-    const users: AcmeUser[] = [
-      {
-        id: 'acme-user-1',
-        name: 'User One',
-      },
-      {
-        id: 'acme-user-2',
-        name: 'User Two',
-      },
-    ];
-
-    for (const user of users) {
-      await iteratee(user);
-    }
+    await this.paginatedRequest<HexnodeUser>(
+      this.withBaseUri(`users/?per_page=${this.perPage}`),
+      'GET',
+      iteratee,
+    );
   }
 
   /**
-   * Iterates each group resource in the provider.
+   * Iterates each user resource in the provider.
    *
    * @param iteratee receives each resource to produce entities/relationships
    */
-  public async iterateGroups(
-    iteratee: ResourceIteratee<AcmeGroup>,
+  public async iterateUserGroups(
+    iteratee: ResourceIteratee<HexnodeUserGroup>,
   ): Promise<void> {
-    // TODO paginate an endpoint, invoke the iteratee with each record in the
-    // page
-    //
-    // The provider API will hopefully support pagination. Functions like this
-    // should maintain pagination state, and for each page, for each record in
-    // the page, invoke the `ResourceIteratee`. This will encourage a pattern
-    // where each resource is processed and dropped from memory.
+    await this.paginatedRequest<HexnodeUserGroup>(
+      this.withBaseUri(`usergroups/?per_page=${this.perPage}`),
+      'GET',
+      iteratee,
+    );
+  }
 
-    const groups: AcmeGroup[] = [
-      {
-        id: 'acme-group-1',
-        name: 'Group One',
-        users: [
-          {
-            id: 'acme-user-1',
-          },
-        ],
-      },
-    ];
+  /**
+   * Iterates each user resource in the provider.
+   *
+   * @param iteratee receives each resource to produce entities/relationships
+   */
+  public async iterateDevices(
+    iteratee: ResourceIteratee<HexnodeDevice>,
+  ): Promise<void> {
+    await this.paginatedRequest<HexnodeDevice>(
+      this.withBaseUri(`devices/?per_page=${this.perPage}`),
+      'GET',
+      iteratee,
+    );
+  }
 
-    for (const group of groups) {
-      await iteratee(group);
-    }
+  /**
+   * Iterates each user resource in the provider.
+   *
+   * @param iteratee receives each resource to produce entities/relationships
+   */
+  public async iterateDeviceGroups(
+    iteratee: ResourceIteratee<HexnodeDeviceGroup>,
+  ): Promise<void> {
+    await this.paginatedRequest<HexnodeDeviceGroup>(
+      this.withBaseUri(`devicegroups/?per_page=${this.perPage}`),
+      'GET',
+      iteratee,
+    );
+  }
+
+  public async fetchUserGroupDetails(
+    id: string,
+  ): Promise<HexnodeUserGroupDetail> {
+    return await this.request(this.withBaseUri(`usergroups/${id}/`));
+  }
+
+  public async fetchDeviceGroupDetails(
+    id: string,
+  ): Promise<HexnodeDeviceGroupDetail> {
+    return await this.request(this.withBaseUri(`devicegroups/${id}/`));
   }
 }
 

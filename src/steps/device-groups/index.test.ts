@@ -9,35 +9,26 @@ afterEach(async () => {
   await recording.stop();
 });
 
-test('fetch-users', async () => {
+test('fetch-device-groups', async () => {
   recording = setupProjectRecording({
     directory: __dirname,
-    name: 'fetch-users',
+    name: 'fetch-device-groups',
   });
 
-  const stepConfig = buildStepTestConfigForStep(Steps.USERS);
+  const stepConfig = buildStepTestConfigForStep(Steps.DEVICE_GROUPS);
   const stepResult = await executeStepWithDependencies(stepConfig);
   expect(stepResult).toMatchStepMetadata(stepConfig);
 });
 
-test('fetch-groups', async () => {
+test('build-device-groups-and-devices-relationships', async () => {
   recording = setupProjectRecording({
     directory: __dirname,
-    name: 'fetch-groups',
+    name: 'build-device-groups-and-devices-relationships',
   });
 
-  const stepConfig = buildStepTestConfigForStep(Steps.GROUPS);
-  const stepResult = await executeStepWithDependencies(stepConfig);
-  expect(stepResult).toMatchStepMetadata(stepConfig);
-});
-
-test('build-user-group-relationships', async () => {
-  recording = setupProjectRecording({
-    directory: __dirname,
-    name: 'build-user-group-relationships',
-  });
-
-  const stepConfig = buildStepTestConfigForStep(Steps.GROUP_USER_RELATIONSHIPS);
+  const stepConfig = buildStepTestConfigForStep(
+    Steps.BUILD_DEVICE_GROUPS_DEVICES_RELATIONSHIPS,
+  );
   const stepResult = await executeStepWithDependencies(stepConfig);
   expect(stepResult).toMatchStepMetadata(stepConfig);
 });

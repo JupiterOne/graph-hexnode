@@ -1,25 +1,83 @@
-// Providers often supply types with their API libraries.
+export type HexnodeResponseMeta = {
+  count: number;
+  next: string;
+  previous: string | null;
+};
 
-export interface AcmeUser {
-  id: string;
+export type HexnodeUser = {
+  id: number;
   name: string;
-}
+  email?: string;
+  phoneno?: string;
+  total_devices: number;
+  domain: string;
+};
 
-export interface AcmeGroup {
-  id: string;
-  name: string;
-  users?: Pick<AcmeUser, 'id'>[];
-}
+export type HexnodeUserGroup = {
+  id: number;
+  groupname: string;
+  description: string;
+  users_count: number;
+  modified_date: string;
+};
 
-// Those can be useful to a degree, but often they're just full of optional
-// values. Understanding the response data may be more reliably accomplished by
-// reviewing the API response recordings produced by testing the wrapper client
-// (./client.ts). However, when there are no types provided, it is necessary to define
-// opaque types for each resource, to communicate the records that are expected
-// to come from an endpoint and are provided to iterating functions.
+export type HexnodeDevice = {
+  id: number;
+  device_name: string;
+  model_name: string;
+  os_name: string;
+  os_version: string;
+  enrolled_time: string;
+  last_reported: string;
+  compliant: boolean;
+  serial_number: string;
+  enrollment_status: string;
+  udid: string;
+  user: {
+    id: number;
+    name: string;
+  };
+};
 
-/*
-import { Opaque } from 'type-fest';
-export type AcmeUser = Opaque<any, 'AcmeUser'>;
-export type AcmeGroup = Opaque<any, 'AcmeGroup'>;
-*/
+export type HexnodeUserResponse = HexnodeResponseMeta & {
+  results: HexnodeUser[];
+};
+
+export type HexnodeUserGroupResponse = HexnodeResponseMeta & {
+  results: HexnodeUserGroup[];
+};
+
+export type HexnodeUserGroupDetail = {
+  id: number;
+  groupname: string;
+  description: string;
+  users: {
+    id: number;
+    name: string;
+    email?: string;
+    phoneno?: string;
+  }[];
+};
+
+export type HexnodeDeviceGroup = {
+  id: number;
+  groupname: string;
+  device_count: number;
+  description: string;
+  grouptype: string;
+  modified_date: string;
+};
+
+export type HexnodeDeviceGroupDetail = {
+  id: number;
+  groupname: string;
+  description: string;
+  devices: {
+    id: number;
+    name: string;
+    user_id: number;
+    user_name: string;
+    model_name: string;
+    platform: string;
+  }[];
+};

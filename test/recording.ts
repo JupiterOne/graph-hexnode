@@ -15,6 +15,13 @@ export function setupProjectRecording(
     redactedRequestHeaders: ['Authorization'],
     redactedResponseHeaders: ['set-cookie'],
     mutateEntry: mutations.unzipGzippedRecordingEntry,
+    options: {
+      matchRequestsBy: {
+        url: {
+          hostname: false,
+        },
+      },
+    },
     /*mutateEntry: (entry) => {
       redact(entry);
     },*/
