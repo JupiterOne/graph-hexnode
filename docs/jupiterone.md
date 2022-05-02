@@ -1,4 +1,4 @@
-# Integration with JupiterOne
+# Hexnode Integration with JupiterOne
 
 ## Hexnode + JupiterOne Integration Benefits
 
