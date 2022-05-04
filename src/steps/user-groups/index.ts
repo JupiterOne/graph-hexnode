@@ -41,6 +41,7 @@ export async function fetchUserGroups({
 export async function buildUserGroupsAndUserRelationships({
   instance,
   jobState,
+  logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config);
 
@@ -51,10 +52,21 @@ export async function buildUserGroupsAndUserRelationships({
         userGroupEntity.id as string,
       );
 
+      if (
+        userGroupDetail.detail &&
+        userGroupDetail.detail === 'usergroup not found'
+      ) {
+        logger.warn(
+          { id: userGroupEntity.id },
+          'Could not get user group details for the given id',
+        );
+        return;
+      }
+
       for (const user of userGroupDetail.users) {
         const userEntity = await jobState.findEntity(getUserKey(user.id));
 
-        if (userEntity)
+        if (userEntity) {
           await jobState.addRelationship(
             createDirectRelationship({
               _class: RelationshipClass.HAS,
@@ -62,6 +74,7 @@ export async function buildUserGroupsAndUserRelationships({
               to: userEntity,
             }),
           );
+        }
       }
     },
   );

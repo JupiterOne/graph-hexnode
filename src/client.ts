@@ -1,4 +1,4 @@
-import fetch, { Response } from 'node-fetch';
+import { Response } from 'node-fetch';
 
 import {
   IntegrationProviderAPIError,
@@ -15,6 +15,7 @@ import {
   HexnodeDeviceGroup,
 } from './types';
 import { retry } from '@lifeomic/attempt';
+import { fetchOrThrow } from './utils/helpers';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
 
@@ -39,11 +40,12 @@ export class APIClient {
       // Handle rate-limiting
       const response = await retry(
         async () => {
-          return await fetch(uri, options);
+          return fetchOrThrow(uri, options);
         },
         {
-          delay: 5000,
-          maxAttempts: 10,
+          delay: 12000,
+          factor: 1.5,
+          maxAttempts: 5,
           handleError: (err, context) => {
             if (
               err.statusCode !== 429 ||

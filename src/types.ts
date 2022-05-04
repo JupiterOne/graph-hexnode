@@ -57,6 +57,7 @@ export type HexnodeUserGroupDetail = {
     email?: string;
     phoneno?: string;
   }[];
+  detail?: string;
 };
 
 export type HexnodeDeviceGroup = {
