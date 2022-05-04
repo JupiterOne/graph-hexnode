@@ -8,6 +8,8 @@ and this project adheres to
 
 ## Unreleased
 
+## 1.0.1 - 2022-05-04
+
 ### Fixed
 
 - Fixed an issue regarding user group id not being accessible and improved
